@@ -102,7 +102,7 @@ function renderGroups() {
 }
 
 /* ===================== LLAVE ===================== */
-function slotHTML(matchId, side, slot, decidedWinner) {
+function slotHTML(matchId, side, slot, decidedWinner, showPens) {
   const res = E.resolveSlot(slot);
   const r = E.state.ko[matchId] || {};
   const v = (r[side] ?? "") === "" ? "" : r[side];
@@ -112,7 +112,7 @@ function slotHTML(matchId, side, slot, decidedWinner) {
     isWinner = res.team && decidedWinner.code === res.team.code;
     cls += isWinner ? " winner" : " loser";
   }
-  // Sello "pen." sobre el ganador cuando el cruce se definió por penales.
+  // Sello "pen" sobre el ganador cuando el cruce se definió por penales.
   const penTag = (isWinner && E.koByPens(matchId)) ? '<span class="pen-win-tag">pen</span>' : "";
   const teamHTML = res.team
     ? `<div class="bk-team${res.provisional ? " prov" : ""}" title="${res.provisional ? "Provisional · cambia según los grupos" : ""}">
@@ -120,10 +120,18 @@ function slotHTML(matchId, side, slot, decidedWinner) {
        </div>`
     : `<div class="bk-team"><span class="placeholder">${esc(res.label)}</span></div>`;
   const canScore = bothDecided(matchId);
-  return `<div class="${cls}">
+  // Columna de penales pegada al marcador (sólo en empate), una por equipo.
+  const penSide = side === "a" ? "pa" : "pb";
+  const pv = (r[penSide] ?? "") === "" ? "" : r[penSide];
+  const penInput = showPens
+    ? `<input class="bk-pscore" data-role="pscore" data-id="${matchId}" data-side="${penSide}" data-fid="${penSide}-${matchId}"
+              inputmode="numeric" maxlength="2" value="${pv}" aria-label="penales">`
+    : "";
+  return `<div class="${cls}${showPens ? " has-pen" : ""}">
     ${teamHTML}
     <input class="bk-score" data-role="kscore" data-id="${matchId}" data-side="${side}" data-fid="k-${matchId}-${side}"
            inputmode="numeric" maxlength="2" value="${v}" ${canScore ? "" : "disabled"} aria-label="goles">
+    ${penInput}
   </div>`;
 }
 
@@ -133,33 +141,15 @@ function bothDecided(id) {
   return E.resolveSlot(m.a).team && E.resolveSlot(m.b).team;
 }
 
-// Cuando el cruce queda empatado, mostramos el marcador de penales: gana quien
-// anota más y queda registrado (4-3). El ganador se deriva solo de estos números.
-function penHTML(m) {
-  if (!bothDecided(m.id)) return "";
-  const res = E.koResult(m.id);
-  if (!res || res.a !== res.b) return "";
-  const A = E.resolveSlot(m.a).team, B = E.resolveSlot(m.b).team;
-  const r = E.state.ko[m.id] || {};
-  const pa = (r.pa ?? "") === "" ? "" : r.pa;
-  const pb = (r.pb ?? "") === "" ? "" : r.pb;
-  return `<div class="bk-pen">
-    <span class="pen-label">Penales</span>
-    <input class="bk-pscore" data-role="pscore" data-id="${m.id}" data-side="pa" data-fid="pa-${m.id}"
-           inputmode="numeric" maxlength="2" value="${pa}" aria-label="penales ${A.code}">
-    <span class="pen-dash">–</span>
-    <input class="bk-pscore" data-role="pscore" data-id="${m.id}" data-side="pb" data-fid="pb-${m.id}"
-           inputmode="numeric" maxlength="2" value="${pb}" aria-label="penales ${B.code}">
-  </div>`;
-}
-
 function matchHTML(m, isFinal) {
   const win = E.koWinner(m.id);
+  const res = E.koResult(m.id);
+  // Empate resuelto → mostramos columna de penales junto al marcador.
+  const showPens = bothDecided(m.id) && res && res.a === res.b;
   return `<div class="bk-match${isFinal ? " is-final" : ""}" data-id="${m.id}">
-    <div class="bk-meta">${m.date} · ${esc(m.city)}</div>
-    ${slotHTML(m.id, "a", m.a, win)}
-    ${slotHTML(m.id, "b", m.b, win)}
-    ${penHTML(m)}
+    <div class="bk-meta"><span class="bk-place">${m.date} · ${esc(m.city)}</span>${showPens ? '<span class="bk-penttl">Penales</span>' : ""}</div>
+    ${slotHTML(m.id, "a", m.a, win, showPens)}
+    ${slotHTML(m.id, "b", m.b, win, showPens)}
   </div>`;
 }
 

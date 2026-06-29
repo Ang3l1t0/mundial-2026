@@ -290,10 +290,10 @@ tr.q3 td.pos { color: var(--third); }
   .bk-tree .bk-team .code { font-size: 10px; }
   .bk-tree .bk-team .placeholder { font-size: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bk-tree .bk-score { width: 18px; height: 19px; font-size: 10px; }
-  .bk-tree .bk-pen { padding: 3px 4px 4px; gap: 3px; justify-content: center; }
-  .bk-tree .bk-pen .pen-label { display: none; }   /* sin espacio en tarjetas chicas */
-  .bk-tree .bk-pscore { width: 17px; height: 17px; font-size: 9px; margin-left: 0; }
+  .bk-tree .bk-slot.has-pen { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .bk-tree .bk-pscore { width: 17px; height: 18px; font-size: 9px; }
   .bk-tree .pen-win-tag { font-size: 6.5px; padding: 0 2px; }
+  .bk-tree .bk-meta .bk-penttl { font-size: 7px; }
 
   /* Tarjeta de FINAL destacada al centro */
   .bk-tfinal {
@@ -334,8 +334,11 @@ tr.q3 td.pos { color: var(--third); }
   background: #fff; border: 1px solid var(--color-hairline-default); border-radius: var(--radius-md);
   box-shadow: var(--shadow-xs); overflow: hidden;
 }
-.bk-meta { font-family: var(--font-code); font-size: 8.5px; color: var(--color-text-tertiary); padding: 3px 7px 0; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bk-meta { font-family: var(--font-code); font-size: 8.5px; color: var(--color-text-tertiary); padding: 3px 7px 0; letter-spacing: .2px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.bk-meta .bk-place { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.bk-meta .bk-penttl { color: var(--color-brand-primary); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; flex: none; }
 .bk-slot { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px; padding: 4px 7px; }
+.bk-slot.has-pen { grid-template-columns: 1fr auto auto; }
 .bk-slot + .bk-slot { border-top: 1px solid var(--color-hairline-subtle); }
 .bk-team { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .bk-team img { width: 16px; height: 12px; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.06); flex: none; }
@@ -357,15 +360,12 @@ tr.q3 td.pos { color: var(--third); }
 .bk-score::-webkit-outer-spin-button, .bk-score::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .bk-score:disabled { background: var(--color-surface-secondary); color: var(--color-text-tertiary); }
 .bk-score:focus { border-color: var(--color-brand-primary); box-shadow: var(--shadow-focus); outline: none; }
-.bk-pen { display: flex; align-items: center; gap: 5px; padding: 4px 7px 6px; border-top: 1px dashed var(--color-hairline-default); }
-.bk-pen .pen-label { font-size: 9px; color: var(--color-text-tertiary); font-family: var(--font-code); text-transform: uppercase; letter-spacing: .4px; }
-.bk-pen .pen-dash { color: var(--color-text-tertiary); font-weight: 700; }
+/* Recuadro de penales: pegado al marcador, uno por fila/equipo */
 .bk-pscore {
-  width: 24px; height: 22px; text-align: center; border: 1px solid var(--color-hairline-strong);
-  border-radius: var(--radius-sm); font-family: var(--font-code); font-size: 12px; background: #fff;
-  -moz-appearance: textfield; color: var(--color-text-primary); margin-left: auto;
+  width: 24px; height: 24px; text-align: center; border: 1px solid var(--color-brand-primary);
+  border-radius: var(--radius-sm); font-family: var(--font-code); font-size: 12px;
+  background: var(--color-brand-subtle); -moz-appearance: textfield; color: var(--color-text-primary);
 }
-.bk-pscore + .pen-dash + .bk-pscore { margin-left: 0; }
 .bk-pscore::-webkit-outer-spin-button, .bk-pscore::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .bk-pscore:focus { border-color: var(--color-brand-primary); box-shadow: var(--shadow-focus); outline: none; }
 /* Sello "pen" sobre el equipo que avanzó por penales */

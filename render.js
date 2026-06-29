@@ -161,17 +161,20 @@ function columnHTML(label, matches) {
   </div>`;
 }
 
-function centerHTML() {
+function championHTML() {
   const champ = E.koWinner(KO.fin.id);
-  const champHTML = champ ? `<div class="champion">
+  return champ ? `<div class="champion">
       <div class="ch-label">Campeón</div>
       <div class="ch-team"><img src="${flagURL(champ.flag)}" alt=""><span class="code">${champ.code}</span></div>
     </div>` : "";
+}
+
+function centerHTML() {
   return `<div class="bk-col center">
     <div class="final-card">
       <div class="final-trophy">${icon("trophy")}<div class="ft-label">FINAL</div></div>
       ${matchHTML(KO.fin, true)}
-      ${champHTML}
+      ${championHTML()}
       <div class="tercer">
         <div class="col-label" style="font-size:11px;margin-bottom:6px">3.º puesto</div>
         ${matchHTML(KO.ter, false)}
@@ -182,12 +185,67 @@ function centerHTML() {
 
 function left(side, arr) { return arr.filter(m => m.side === side); }
 
+// Vista móvil: rondas apiladas en vertical (cada partido con un equipo arriba y
+// otro abajo). No usa el reparto L/R del cuadro de escritorio.
+function mobileRoundHTML(label, matches) {
+  return `<section class="bk-mround">
+    <div class="bk-mlabel">${label}</div>
+    <div class="bk-mgrid">${matches.map(m => matchHTML(m, false)).join("")}</div>
+  </section>`;
+}
+
+// --- Árbol plegado (estilo bracket vertical): cada ronda es una fila de tarjetas
+// que embudan hacia la FINAL central con líneas conectoras; abajo se refleja la
+// otra mitad. Las tarjetas siguen siendo editables.
+function treeRow(label, matches) {
+  const cells = matches.map(m => `<div class="bk-tcell">${matchHTML(m, false)}</div>`).join("");
+  const cols = `grid-template-columns:repeat(${matches.length},minmax(0,1fr))`;
+  return `<div class="bk-trow"><div class="bk-tlabel">${label}</div><div class="bk-tcards" style="${cols}">${cells}</div></div>`;
+}
+// Conector de N celdas que fusionan pares de la ronda anterior (⊔). flip = embudo
+// invertido (mitad de abajo). straight = línea recta (semi↔final).
+function treeConn(cells, opts = {}) {
+  const cls = "bk-conn" + (opts.flip ? " flip" : "") + (opts.straight ? " straight" : "");
+  let inner = "";
+  for (let i = 0; i < cells; i++) inner += `<div class="bk-merge"></div>`;
+  return `<div class="${cls}">${inner}</div>`;
+}
+
+function bracketMobileHTML() {
+  const octL = left("L", KO.oct), octR = left("R", KO.oct);
+  const cuaL = left("L", KO.cua), cuaR = left("R", KO.cua);
+  const semL = left("L", KO.sem), semR = left("R", KO.sem);
+  return `<div class="bk-mobile">
+    ${mobileRoundHTML("16avos de final", KO.r32)}
+    <div class="bk-tree">
+      ${treeRow("Octavos de final", octL)}
+      ${treeConn(2)}
+      ${treeRow("Cuartos de final", cuaL)}
+      ${treeConn(1)}
+      ${treeRow("Semifinales", semL)}
+      ${treeConn(1, { straight: true })}
+      <div class="bk-tfinal">
+        <div class="bk-tlabel center">${icon("trophy")} Final</div>
+        <div class="bk-tcards"><div class="bk-tcell">${matchHTML(KO.fin, true)}</div></div>
+        ${championHTML()}
+      </div>
+      ${treeConn(1, { straight: true, flip: true })}
+      ${treeRow("Semifinales", semR)}
+      ${treeConn(1, { flip: true })}
+      ${treeRow("Cuartos de final", cuaR)}
+      ${treeConn(2, { flip: true })}
+      ${treeRow("Octavos de final", octR)}
+    </div>
+    ${mobileRoundHTML("Tercer puesto", [KO.ter])}
+  </div>`;
+}
+
 function renderBracket() {
   const r32L = left("L", KO.r32), r32R = left("R", KO.r32);
   const octL = left("L", KO.oct), octR = left("R", KO.oct);
   const cuaL = left("L", KO.cua), cuaR = left("R", KO.cua);
   const semL = left("L", KO.sem), semR = left("R", KO.sem);
-  const html =
+  const desktop = `<div class="bk-desktop">` +
     columnHTML("16avos", r32L) +
     columnHTML("Octavos", octL) +
     columnHTML("Cuartos", cuaL) +
@@ -196,8 +254,9 @@ function renderBracket() {
     columnHTML("Semis", semR) +
     columnHTML("Cuartos", cuaR) +
     columnHTML("Octavos", octR) +
-    columnHTML("16avos", r32R);
-  document.getElementById("bracket").innerHTML = html;
+    columnHTML("16avos", r32R) +
+    `</div>`;
+  document.getElementById("bracket").innerHTML = desktop + bracketMobileHTML();
 }
 
 /* ===================== PROGRESO ===================== */

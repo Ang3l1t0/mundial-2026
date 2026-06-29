@@ -5,7 +5,7 @@
      en la primera carga CON internet → después funciona 100% offline.
    ============================================================ */
 
-const CACHE = "mundial2026-v3";
+const CACHE = "mundial2026-v5";
 
 // Archivos locales que forman la app (sin estos no arranca).
 const SHELL = [

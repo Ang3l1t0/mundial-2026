@@ -240,6 +240,87 @@ tr.q3 td.pos { color: var(--third); }
 .bracket {
   display: flex; align-items: stretch; gap: 10px; min-width: 0; width: 100%;
 }
+/* display:contents → las columnas siguen siendo hijas directas del flex .bracket
+   (escritorio intacto); en móvil ocultamos esto y mostramos .bk-mobile */
+.bk-desktop { display: contents; }
+.bk-mobile { display: none; }
+
+/* Vista vertical para celular */
+@media (max-width: 640px) {
+  .panel { padding: var(--space-md); }   /* más ancho útil para el árbol en el cel */
+  .bracket-scroll { overflow-x: visible; padding-bottom: 0; }
+  .bracket { display: block; }
+  .bk-desktop { display: none; }
+  .bk-mobile { display: block; }
+
+  /* 16avos y 3.º puesto: grid compacta */
+  .bk-mround { margin-bottom: var(--space-lg); }
+  .bk-mlabel {
+    font-family: var(--font-display); font-weight: 700; font-size: 13px;
+    color: var(--color-brand-primary); letter-spacing: .2px;
+    margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 6px;
+  }
+  .bk-mlabel svg { width: 15px; height: 15px; }
+  .bk-mgrid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-sm); align-items: start;
+  }
+
+  /* ---- Árbol plegado ---- */
+  .bk-tree { display: flex; flex-direction: column; }
+  .bk-trow { display: flex; flex-direction: column; }
+  .bk-tlabel {
+    font-family: var(--font-display); font-weight: 700; font-size: 12px;
+    color: var(--color-brand-primary); text-align: center; letter-spacing: .2px;
+    margin: 2px 0; display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .bk-tlabel svg { width: 18px; height: 18px; }
+  /* grid con minmax(0,1fr): columnas iguales que SIEMPRE suman el ancho del
+     contenedor → la fila nunca desborda aunque una tarjeta pida más */
+  .bk-tcards { display: grid; align-items: stretch; }
+  .bk-tcell { display: flex; justify-content: center; min-width: 0; padding: 0 1px; }
+  .bk-tcell .bk-match { width: 100%; max-width: 84px; }
+
+  /* Tarjetas compactas dentro del árbol */
+  .bk-tree .bk-meta { font-size: 7px; padding: 2px 4px 0; }
+  .bk-tree .bk-slot { padding: 3px 4px; gap: 3px; }
+  .bk-tree .bk-slot { grid-template-columns: minmax(0, 1fr) auto; }  /* deja encoger al equipo */
+  .bk-tree .bk-team { gap: 4px; }
+  .bk-tree .bk-team img { width: 13px; height: 10px; }
+  .bk-tree .bk-team .code { font-size: 10px; }
+  .bk-tree .bk-team .placeholder { font-size: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bk-tree .bk-score { width: 18px; height: 19px; font-size: 10px; }
+  .bk-tree .bk-pen { padding: 0 4px 4px; gap: 2px; }
+  .bk-tree .bk-pen button { font-size: 8px; }
+  .bk-tree .bk-pen .pen-label { display: none; }
+
+  /* Tarjeta de FINAL destacada al centro */
+  .bk-tfinal {
+    background: var(--color-brand-subtle); border: 1.5px solid var(--color-brand-primary);
+    border-radius: var(--radius-lg); padding: var(--space-md); margin: 2px auto;
+    width: min(100%, 230px);
+  }
+  .bk-tfinal .bk-tlabel { font-size: 13px; letter-spacing: 1px; }
+  .bk-tfinal .bk-tcell { padding: 0; }
+  .bk-tfinal .bk-tcell .bk-match { max-width: none; }
+  .bk-tfinal .champion { margin-top: var(--space-sm); padding-top: var(--space-sm); border-top: 1px dashed var(--color-brand-primary); }
+
+  /* Conectores: ⊔ que une pares de la ronda de arriba y baja al hijo centrado */
+  .bk-conn { display: flex; height: 20px; }
+  .bk-merge { flex: 1 1 0; position: relative; }
+  .bk-merge::before {           /* dos verticales (25% y 75%) + barra inferior */
+    content: ""; position: absolute; left: 25%; right: 25%; top: 0; height: 50%;
+    border: 1px solid var(--color-hairline-strong); border-top: none;
+  }
+  .bk-merge::after {            /* tallo central hacia el hijo */
+    content: ""; position: absolute; left: 50%; top: 50%; height: 50%;
+    border-left: 1px solid var(--color-hairline-strong);
+  }
+  .bk-conn.flip .bk-merge::before { top: 50%; border-top: 1px solid var(--color-hairline-strong); border-bottom: none; }
+  .bk-conn.flip .bk-merge::after  { top: 0; }
+  .bk-conn.straight .bk-merge::before { display: none; }
+  .bk-conn.straight .bk-merge::after  { top: 0; height: 100%; }
+}
 .bk-col { display: flex; flex-direction: column; justify-content: space-around; flex: 1 1 0; min-width: 0; }
 .bk-col.center { flex: 0 0 180px; min-width: 0; justify-content: center; align-items: center; }
 .col-label {

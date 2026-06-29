@@ -254,7 +254,22 @@ function koResult(id) {
   if (r.a === "" || r.b === "" || r.a == null || r.b == null) return null;
   const a = Number(r.a), b = Number(r.b);
   if (Number.isNaN(a) || Number.isNaN(b)) return null;
-  return { a, b, pen: r.pen || null };
+  // Penales (sólo cuentan en empate): marcador opcional pa-pb.
+  const pa = (r.pa === "" || r.pa == null) ? null : Number(r.pa);
+  const pb = (r.pb === "" || r.pb == null) ? null : Number(r.pb);
+  return {
+    a, b, pen: r.pen || null,
+    pa: Number.isNaN(pa) ? null : pa,
+    pb: Number.isNaN(pb) ? null : pb,
+  };
+}
+
+// ¿El partido se definió por penales? (empate en los 90' + penales decisivos)
+function koByPens(id) {
+  const res = koResult(id);
+  if (!res || res.a !== res.b) return false;
+  if (res.pa != null && res.pb != null && res.pa !== res.pb) return true;
+  return res.pen === "a" || res.pen === "b";
 }
 
 // Ganador de un partido KO (requiere ambos slots resueltos y resultado válido)
@@ -267,7 +282,8 @@ function koWinner(id) {
   if (!res) return null;
   if (res.a > res.b) return A.team;
   if (res.b > res.a) return B.team;
-  // empate → penales
+  // empate → penales: gana quien anotó más; si no hay marcador, cae al pick previo.
+  if (res.pa != null && res.pb != null && res.pa !== res.pb) return res.pa > res.pb ? A.team : B.team;
   if (res.pen === "a") return A.team;
   if (res.pen === "b") return B.team;
   return null;
@@ -309,6 +325,6 @@ window.engine = {
   state, loadState, saveState, resetState,
   groupResult, groupPlayedCount, groupComplete, allGroupsComplete,
   computeGroupStats, rankGroup, rankThirds,
-  resolveSlot, findKO, koResult, koWinner, koLoser,
+  resolveSlot, findKO, koResult, koWinner, koLoser, koByPens,
   simulateGroups, isRealGroup,
 };

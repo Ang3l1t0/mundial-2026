@@ -107,13 +107,16 @@ function slotHTML(matchId, side, slot, decidedWinner) {
   const r = E.state.ko[matchId] || {};
   const v = (r[side] ?? "") === "" ? "" : r[side];
   let cls = "bk-slot";
+  let isWinner = false;
   if (decidedWinner) {
-    const isThis = res.team && decidedWinner.code === res.team.code;
-    cls += isThis ? " winner" : " loser";
+    isWinner = res.team && decidedWinner.code === res.team.code;
+    cls += isWinner ? " winner" : " loser";
   }
+  // Sello "pen." sobre el ganador cuando el cruce se definió por penales.
+  const penTag = (isWinner && E.koByPens(matchId)) ? '<span class="pen-win-tag">pen</span>' : "";
   const teamHTML = res.team
     ? `<div class="bk-team${res.provisional ? " prov" : ""}" title="${res.provisional ? "Provisional · cambia según los grupos" : ""}">
-         <img src="${flagURL(res.team.flag)}" alt=""><span class="code">${res.team.code}</span>${res.provisional ? '<span class="prov-tag">prov.</span>' : ""}
+         <img src="${flagURL(res.team.flag)}" alt=""><span class="code">${res.team.code}</span>${penTag}${res.provisional ? '<span class="prov-tag">prov.</span>' : ""}
        </div>`
     : `<div class="bk-team"><span class="placeholder">${esc(res.label)}</span></div>`;
   const canScore = bothDecided(matchId);
@@ -130,16 +133,23 @@ function bothDecided(id) {
   return E.resolveSlot(m.a).team && E.resolveSlot(m.b).team;
 }
 
+// Cuando el cruce queda empatado, mostramos el marcador de penales: gana quien
+// anota más y queda registrado (4-3). El ganador se deriva solo de estos números.
 function penHTML(m) {
   if (!bothDecided(m.id)) return "";
   const res = E.koResult(m.id);
   if (!res || res.a !== res.b) return "";
   const A = E.resolveSlot(m.a).team, B = E.resolveSlot(m.b).team;
-  const pen = (E.state.ko[m.id] || {}).pen;
+  const r = E.state.ko[m.id] || {};
+  const pa = (r.pa ?? "") === "" ? "" : r.pa;
+  const pb = (r.pb ?? "") === "" ? "" : r.pb;
   return `<div class="bk-pen">
-    <span class="pen-label">pen.</span>
-    <button data-action="pen" data-id="${m.id}" data-pen="a" class="${pen === "a" ? "on" : ""}">${A.code}</button>
-    <button data-action="pen" data-id="${m.id}" data-pen="b" class="${pen === "b" ? "on" : ""}">${B.code}</button>
+    <span class="pen-label">Penales</span>
+    <input class="bk-pscore" data-role="pscore" data-id="${m.id}" data-side="pa" data-fid="pa-${m.id}"
+           inputmode="numeric" maxlength="2" value="${pa}" aria-label="penales ${A.code}">
+    <span class="pen-dash">–</span>
+    <input class="bk-pscore" data-role="pscore" data-id="${m.id}" data-side="pb" data-fid="pb-${m.id}"
+           inputmode="numeric" maxlength="2" value="${pb}" aria-label="penales ${B.code}">
   </div>`;
 }
 
@@ -305,6 +315,12 @@ document.addEventListener("input", (ev) => {
     E.state.ko[id][side] = sanitize(t.value);
     E.saveState();
     render();
+  } else if (t.dataset.role === "pscore") {
+    const { id, side } = t.dataset; // side = "pa" | "pb"
+    if (!E.state.ko[id]) E.state.ko[id] = { a: "", b: "", pen: null };
+    E.state.ko[id][side] = sanitize(t.value);
+    E.saveState();
+    render();
   }
 });
 
@@ -315,12 +331,6 @@ document.addEventListener("click", (ev) => {
   if (a === "toggle-matches") {
     const g = btn.dataset.g;
     if (expanded.has(g)) expanded.delete(g); else expanded.add(g);
-    render();
-  } else if (a === "pen") {
-    const { id, pen } = btn.dataset;
-    if (!E.state.ko[id]) E.state.ko[id] = { a: "", b: "", pen: null };
-    E.state.ko[id].pen = (E.state.ko[id].pen === pen) ? null : pen;
-    E.saveState();
     render();
   } else if (a === "reset") {
     if (confirm("¿Borrar todos los resultados cargados?")) {

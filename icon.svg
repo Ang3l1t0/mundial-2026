@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1430"/>
+      <stop offset="1" stop-color="#0b0f1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- balón -->
+  <circle cx="256" cy="252" r="150" fill="#ffffff"/>
+  <g fill="#0b0f1a">
+    <circle cx="256" cy="252" r="38"/>
+    <circle cx="256" cy="140" r="22"/>
+    <circle cx="362" cy="218" r="22"/>
+    <circle cx="322" cy="344" r="22"/>
+    <circle cx="190" cy="344" r="22"/>
+    <circle cx="150" cy="218" r="22"/>
+  </g>
+  <text x="256" y="468" text-anchor="middle" font-family="Montserrat, Arial, sans-serif"
+        font-size="64" font-weight="700" fill="#ffffff">26</text>
+</svg>

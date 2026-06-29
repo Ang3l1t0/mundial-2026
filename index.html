@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mundial 2026 · Grupos y camino al título</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mundial 2026">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="nav-top">
+    <img class="logo" src="assets/habi-logo.svg" alt="Habi">
+    <div class="titles">
+      <span class="eyebrow">Mundial 2026</span>
+      <h1>Grupos y camino al título</h1>
+    </div>
+    <div class="nav-actions">
+      <span id="progress" class="progress-pill">Fase de grupos · 0/72 partidos</span>
+      <button class="btn btn-secondary btn-sm" data-action="simulate" data-icon="dice">Simular grupos</button>
+      <button class="btn btn-ghost btn-sm" data-action="reset" data-icon="rotate">Reiniciar</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <div class="section-head">
+        <h2>Fase de grupos</h2>
+        <span class="sub">12 grupos · tocá «Resultados» en cada grupo para cargar marcadores</span>
+      </div>
+      <div id="groups" class="groups-grid"></div>
+      <div class="legend">
+        <span><span class="dot c"></span>Clasifica (1.º y 2.º)</span>
+        <span><span class="dot t"></span>Mejor 3.º (clasifican los 8 mejores)</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h2>Camino al título</h2>
+        <span class="sub">Se llena solo según los grupos · cargá los marcadores de cada llave para avanzar</span>
+      </div>
+      <div class="bracket-scroll">
+        <div id="bracket" class="bracket"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- seed.js trae los resultados reales horneados (fase de grupos + KO jugado) -->
+  <script src="seed.js"></script>
+  <script src="data.js"></script>
+  <script src="allocation.js"></script>
+  <script src="engine.js"></script>
+  <script src="render.js"></script>
+
+  <!-- Service worker: cachea todo (incl. banderas y fuentes) para funcionar offline -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(() => { /* sin SW: igual funciona online */ });
+      });
+    }
+  </script>
+</body>
+</html>

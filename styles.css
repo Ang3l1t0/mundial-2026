@@ -69,10 +69,10 @@ html, body {
 /* ---------- NAV ---------- */
 .nav-top {
   position: sticky; top: 0; z-index: 50;
-  height: 64px; background: var(--color-surface-canvas);
+  min-height: 64px; background: var(--color-surface-canvas);
   border-bottom: 1px solid var(--color-hairline-default);
   display: flex; align-items: center; gap: var(--space-lg);
-  padding: 0 var(--space-3xl);
+  padding: var(--space-md) var(--space-3xl);
 }
 .nav-top .logo { height: 34px; }
 .nav-top .titles { display: flex; flex-direction: column; line-height: 1.1; }
@@ -85,6 +85,27 @@ html, body {
   letter-spacing: -.3px; margin: 0;
 }
 .nav-actions { margin-left: auto; display: flex; gap: var(--space-sm); align-items: center; }
+
+/* ---------- MÓVIL (vertical) ---------- */
+@media (max-width: 640px) {
+  .nav-top {
+    position: static;   /* el header alto se va con el scroll en vez de comer pantalla */
+    flex-wrap: wrap; align-items: flex-start;
+    gap: var(--space-sm); padding: var(--space-md) var(--space-lg);
+  }
+  .nav-top .titles { flex: 1 1 100%; }   /* título en su propia línea, sin amontonarse */
+  .nav-top h1 { font-size: 18px; line-height: 1.15; }
+  .nav-actions {
+    margin-left: 0; flex: 1 1 100%;
+    flex-wrap: wrap; gap: var(--space-sm);
+  }
+  .nav-actions .btn { flex: 1 1 auto; justify-content: center; }
+  .progress-pill { flex: 1 1 100%; text-align: center; }  /* pill en su propia fila */
+
+  .wrap { padding: var(--space-lg); }
+  .section-head { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
+  .section-head .sub { font-size: 13px; }
+}
 
 /* ---------- BUTTONS ---------- */
 .btn {
